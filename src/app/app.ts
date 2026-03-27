@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Recharge } from './recharge/recharge';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [Recharge],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

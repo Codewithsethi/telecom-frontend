@@ -1,6 +1,6 @@
 {
   "name": "telecom-frontend",
-  "version": "0.0.0",
+  "version": "100",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

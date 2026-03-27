@@ -1,0 +1,87 @@
+<div class="recharge-container">
+  <h2>Mobile Recharge</h2>
+
+  <!-- ---------------- Mobile Number ---------------- -->
+  <div class="form-group">
+    <label for="mobile">Mobile Number</label>
+    <input
+      id="mobile"
+      type="text"
+      [(ngModel)]="mobile"
+      name="mobile"
+      maxlength="10"
+      placeholder="Enter 10-digit mobile number"
+      (input)="onMobileInput()"
+      (keypress)="allowOnlyNumbers($event)"
+      [class.input-error]="mobileError"
+      autocomplete="tel"
+    />
+
+    <!-- ❌ Validation Error -->
+    <span class="error-text" *ngIf="mobileError">
+      {{ mobileError }}
+    </span>
+
+    <!-- ✅ Valid -->
+    <span class="success-text" *ngIf="!mobileError && mobile.length === 10">
+      ✔ Valid number
+    </span>
+  </div>
+
+  <!-- ---------------- Amount ---------------- -->
+  <div class="form-group">
+    <label for="amount">Amount (₹)</label>
+    <input
+      id="amount"
+      type="number"
+      [(ngModel)]="amount"
+      name="amount"
+      min="1"
+      placeholder="Enter recharge amount"
+    />
+
+    <!-- ❌ Amount Error -->
+    <span class="error-text" *ngIf="amount && amount <= 0">
+      Enter valid amount
+    </span>
+  </div>
+
+  <!-- ---------------- Button ---------------- -->
+  <button
+    class="recharge-btn"
+    (click)="recharge()"
+    [disabled]="
+      isLoading ||
+      mobileError ||
+      mobile.length !== 10 ||
+      amount <= 0
+    "
+  >
+    <span *ngIf="!isLoading">Recharge</span>
+    <span *ngIf="isLoading">⏳ Processing...</span>
+  </button>
+
+  <!-- ---------------- Response ---------------- -->
+  <div class="response-block" *ngIf="response">
+
+    <!-- 🔥 Dynamic styling -->
+    <p
+      [ngClass]="{
+        'success-text': response.includes('✅'),
+        'error-text': response.includes('❌') || response.includes('⚠️')
+      }"
+    >
+      {{ response }}
+    </p>
+
+    <!-- ⏱ Response Time -->
+    <p class="response-time" *ngIf="responseTime">
+      {{ responseTime }}
+    </p>
+
+  </div>
+
+  <!-- 🔍 Debug (remove later if not needed) -->
+  <!-- <p>DEBUG: {{ response }}</p> -->
+
+</div>
