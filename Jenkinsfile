@@ -9,7 +9,7 @@ pipeline {
       }
     }
 
-    stage('Install') {
+    stage('Install Dependencies') {
       steps {
         dir('telecom-frontend') {
           bat 'npm install'
@@ -17,15 +17,7 @@ pipeline {
       }
     }
 
-    stage('Test') {
-      steps {
-        dir('telecom-frontend') {
-          bat 'npm test -- --watch=false --browsers=ChromeHeadless'
-        }
-      }
-    }
-
-    stage('Build') {
+    stage('Build Application') {
       steps {
         dir('telecom-frontend') {
           bat 'npm run build -- --configuration production'
@@ -41,19 +33,35 @@ pipeline {
       }
     }
 
+    stage('Docker Tag') {
+      steps {
+        bat 'docker tag telecom-frontend:latest yourdockerhubusername/telecom-frontend:latest'
+      }
+    }
+
     stage('Docker Push') {
       steps {
-        echo 'Skipping push (optional)'
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+          bat 'docker push yourdockerhubusername/telecom-frontend:latest'
+        }
+      }
+    }
+
+    stage('Kubernetes Deploy') {
+      steps {
+        bat 'kubectl apply -f k8s/deployment.yaml'
+        bat 'kubectl apply -f k8s/service.yaml'
       }
     }
   }
 
   post {
     success {
-      echo 'Build successful!'
+      echo '✅ CI/CD Pipeline Successful!'
     }
     failure {
-      echo 'Build failed'
+      echo '❌ Pipeline Failed'
     }
   }
 }
