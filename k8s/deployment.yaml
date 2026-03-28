@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: telecom-frontend
-          image: your-registry/telecom-frontend:latest
+          image: rakeshdocker7/telecom-frontend:latest   # ✅ FIXED
           imagePullPolicy: Always
           ports:
             - containerPort: 80
