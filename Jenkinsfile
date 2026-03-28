@@ -27,22 +27,21 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        // ✅ FIXED: Run from root (Dockerfile is here)
         bat 'docker build -t telecom-frontend:latest .'
       }
     }
 
     stage('Docker Tag') {
       steps {
-        bat 'docker tag telecom-frontend:latest yourdockerhubusername/telecom-frontend:latest'
+        bat 'docker tag telecom-frontend:latest rakeshdocker7/telecom-frontend:latest'
       }
     }
 
-    stage('Docker Push') {
+    stage('Docker Login & Push') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
-          bat 'docker push yourdockerhubusername/telecom-frontend:latest'
+          bat 'docker push rakeshdocker7/telecom-frontend:latest'
         }
       }
     }
@@ -57,7 +56,7 @@ pipeline {
 
   post {
     success {
-      echo '✅ CI/CD Pipeline Successful!'
+      echo '✅ CI/CD Pipeline Successful! 🚀'
     }
     failure {
       echo '❌ Pipeline Failed'
