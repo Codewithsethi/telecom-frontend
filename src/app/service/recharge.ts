@@ -6,7 +6,8 @@ import { Injectable } from '@angular/core';
 })
 export class Recharge {
   
- private url = 'http://localhost:8080/api/recharge';
+  // Point to middleware backend (set to actual deployed host in production)
+  private url = 'http://localhost:8087/api/recharge';
 
   constructor(private http: HttpClient) {}
 

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telecom-frontend
+  labels:
+    app: telecom-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: telecom-frontend
+  template:
+    metadata:
+      labels:
+        app: telecom-frontend
+    spec:
+      containers:
+        - name: telecom-frontend
+          image: your-registry/telecom-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
