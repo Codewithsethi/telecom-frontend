@@ -46,6 +46,14 @@ pipeline {
       }
     }
 
+    // 🔥 NEW DEBUG STAGE
+    stage('Check Kubernetes Connection') {
+      steps {
+        bat 'kubectl version'
+        bat 'kubectl get nodes'
+      }
+    }
+
     stage('Kubernetes Deploy') {
       steps {
         bat 'kubectl apply -f k8s/deployment.yaml'
