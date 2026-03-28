@@ -27,9 +27,8 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        dir('telecom-frontend') {
-          bat 'docker build -t telecom-frontend:latest .'
-        }
+        // ✅ FIXED: Run from root (Dockerfile is here)
+        bat 'docker build -t telecom-frontend:latest .'
       }
     }
 
