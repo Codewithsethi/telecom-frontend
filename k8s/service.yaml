@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: telecom-frontend
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: telecom-frontend
   ports:
     - port: 3000
       targetPort: 80
       protocol: TCP
-      name: http
+      nodePort: 30007 

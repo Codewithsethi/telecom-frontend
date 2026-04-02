@@ -1,71 +1,89 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    NODE_HOME = tool name: 'NodeJS 20', type: 'NodeJS'
-    PATH = "${env.NODE_HOME}/bin:${env.PATH}"
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        DOCKER_HUB = "rakeshdocker7"
+        IMAGE_NAME = "telecom-frontend"
+        KUBECONFIG = "C:\\Users\\Welcome\\.kube\\config"
     }
 
-    stage('Install') {
-      steps {
-        dir('telecom-frontend') {
-          sh 'npm ci'
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
 
-    stage('Lint & Test') {
-      steps {
-        dir('telecom-frontend') {
-          sh 'npm test -- --watch=false --browsers=ChromeHeadless'
+        stage('Install Dependencies') {
+            steps {
+                dir('telecom-frontend') {
+                    bat 'npm install'
+                }
+            }
         }
-      }
-    }
 
-    stage('Build') {
-      steps {
-        dir('telecom-frontend') {
-          sh 'npm run build -- --configuration production'
+        stage('Build Application') {
+            steps {
+                dir('telecom-frontend') {
+                    bat 'npm run build -- --configuration production'
+                }
+            }
         }
-      }
-    }
 
-    stage('Docker Build') {
-      steps {
-        dir('telecom-frontend') {
-          sh 'docker build -t telecom-frontend:latest .'
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t %IMAGE_NAME%:latest .'
+            }
         }
-      }
-    }
 
-    stage('Docker Push') {
-      when {
-        expression { env.DOCKER_REGISTRY?.trim() }
-      }
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY'
-          sh 'docker tag telecom-frontend:latest $DOCKER_REGISTRY/telecom-frontend:latest'
-          sh 'docker push $DOCKER_REGISTRY/telecom-frontend:latest'
+        stage('Docker Tag') {
+            steps {
+                bat 'docker tag %IMAGE_NAME%:latest %DOCKER_HUB%/%IMAGE_NAME%:latest'
+            }
         }
-      }
-    }
-  }
 
-  post {
-    success {
-      echo 'Build successful!'
+        stage('Docker Login & Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat '''
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker push %DOCKER_HUB%/%IMAGE_NAME%:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Check Kubernetes Connection') {
+            steps {
+                bat '''
+                echo Using KUBECONFIG: %KUBECONFIG%
+                kubectl config current-context
+                kubectl get nodes
+                '''
+            }
+        }
+
+        stage('Kubernetes Deploy') {
+            steps {
+                bat '''
+                kubectl apply -f k8s/deployment.yaml
+                kubectl apply -f k8s/service.yaml
+                '''
+            }
+        }
     }
 
-    failure {
-      echo 'Build failed'
+    post {
+        success {
+            echo '✅ CI/CD Pipeline Successful 🚀'
+        }
+        failure {
+            echo '❌ Pipeline Failed'
+        }
     }
-  }
 }
