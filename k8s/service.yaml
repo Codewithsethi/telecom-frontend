@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: telecom-frontend
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: telecom-frontend
   ports:
-    - port: 80
+    - port: 3000
       targetPort: 80
       protocol: TCP
       name: http
