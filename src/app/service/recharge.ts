@@ -10,7 +10,7 @@ import { LoggerService } from './logger.service';
 export class Recharge {
   
   // Point to middleware backend (set to actual deployed host in production)
-  private url = 'http://localhost:8087/api/recharge';
+  private url = 'http://telecom-middleware/api/recharge';
 
   constructor(private http: HttpClient, private logger: LoggerService) {}
 
